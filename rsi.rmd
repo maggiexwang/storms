@@ -1,0 +1,101 @@
+---
+title: "Exploring RSI"
+author: "Maggie Wang"
+date: "March 19, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(ggthemes)
+```
+
+```{r}
+rsi <- read.csv("northeast.csv")
+```
+
+```{r}
+rsi <- rsi %>% 
+  mutate(Start.Date = mdy(Start.Date), 
+         End.Date = mdy(End.Date), 
+         Category = factor(Category))
+str(rsi)
+```
+
+```{r}
+strm_y <- rsi %>% 
+  mutate(start.year = year(Start.Date)) %>% 
+  group_by(start.year) %>% 
+  summarise(n_strm = n(), 
+            sum_rsi = sum(RSI), 
+            median_rsi = median(RSI), 
+            mean_rsi = mean(RSI))
+
+strm_y %>% 
+  ggplot(aes(x = start.year, y = n_strm)) + 
+  geom_bar(stat = "identity")
+```
+
+```{r}
+strm_dcd <- rsi %>% 
+  mutate(start.year = year(Start.Date), 
+         start.decade = start.year - start.year %% 10) %>% 
+  group_by(start.decade) %>% 
+  summarise(n_strm = n(), 
+            sum_rsi = sum(RSI), 
+            median_rsi = median(RSI), 
+            mean_rsi = mean(RSI))
+strm_dcd %>% 
+  ggplot(aes(x = start.decade, y = n_strm)) + 
+  geom_bar(stat = "identity")
+```
+
+
+```{r}
+rsi %>% 
+  ggplot(aes(x = Start.Date, y = RSI)) + 
+  geom_point()
+```
+
+```{r}
+# year statistically significant
+m_y_strm <- lm(n_strm~start.year, data = strm_y)
+summary(m_y_strm)
+```
+
+```{r}
+rsi_plus <- rsi %>% 
+  mutate(start.year = year(Start.Date), 
+         start.decade = start.year - start.year %% 10)
+
+strm_y_lvl <- rsi_plus %>% 
+  group_by(start.year, Category) %>% 
+  summarise(n_strm = n(), 
+            mean_rsi = mean(RSI), 
+            start.decade = mean(start.decade))
+
+# Year statistically signifcant in general, and especially with Cat.1 storms
+m_y_strm_level <- lm(n_strm ~ start.year*Category, 
+                     data = strm_y_lvl)
+summary(m_y_strm_level)
+```
+
+```{r}
+strm_y_lvl %>% 
+  mutate(Category = factor(Category, 
+                           levels = c("5", "4", "3", "2", "1"))) %>% 
+  ggplot(aes(x = factor(start.decade), y = n_strm, fill = Category)) + 
+  geom_bar(stat = "identity") + 
+  theme_gdocs() + 
+  scale_fill_brewer(palette = "Blues", direction = -1, name = "Impact Category", 
+                      labels = c("5 Extreme", "4 Crippling", "3 Major", 
+                                 "2 Significant", "1 Notable")) + 
+  scale_x_discrete(name = element_blank(),
+                   labels = c("1990", "'10", "'20", "'30", "'40", "'50", 
+                          "'60", "'70", "'80", "'90", "2000", "2010")) + 
+  scale_y_continuous(name = "Number of Storms")
+```
+
