@@ -90,12 +90,15 @@ strm_y_lvl %>%
   ggplot(aes(x = factor(start.decade), y = n_strm, fill = Category)) + 
   geom_bar(stat = "identity") + 
   theme_gdocs() + 
+  theme(plot.title = element_text(size = 14)) + 
   scale_fill_brewer(palette = "Blues", direction = -1, name = "Impact Category", 
                       labels = c("5 Extreme", "4 Crippling", "3 Major", 
                                  "2 Significant", "1 Notable")) + 
   scale_x_discrete(name = element_blank(),
                    labels = c("1990", "'10", "'20", "'30", "'40", "'50", 
                           "'60", "'70", "'80", "'90", "2000", "2010")) + 
-  scale_y_continuous(name = "Number of Storms")
+  scale_y_continuous(name = "Number of Storms") + 
+  labs(title = "The Northeast Has Seen More Severe Snowstorms In Recent Years", 
+       subtitle = "Data Source: NOAA, RIS and Societal Impacts")
 ```
 
