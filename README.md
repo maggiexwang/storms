@@ -7,6 +7,8 @@ Standard reporting story as part of course on [Data Journalism](http://www.scien
 ## Findings
 Throughout the years, the Northeast has seen more snow storms, mainly due to the extreme weather conditions caused by global warming.
 
+[[https://github.com/wxiaonanw/storms/blob/master/storm_decade.png]]
+
 The following model showed significance levels of 0.01 for the year and Category 1 (Notable) storms predictors, and 0.05 for Category 2.
 
 ```
